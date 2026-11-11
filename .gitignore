@@ -24,3 +24,7 @@ Thumbs.db
 # 本地工具会话状态
 .mimosa/
 
+# 发布与安装包产物
+publish/
+dist/
+

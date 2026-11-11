@@ -72,6 +72,24 @@ public sealed class TaskManager
         return true;
     }
 
+    /// <summary>
+    /// 删除任务：仅允许非下载中状态（暂停/完成/出错）。
+    /// 移出任务列表并删除进度文件；已下载的文件本体保留在磁盘上。
+    /// </summary>
+    public bool Delete(string id)
+    {
+        DownloadJob? job;
+        lock (_lock)
+        {
+            if (!_jobs.TryGetValue(id, out job)) return false;
+            if (job.State is TaskState.Downloading or TaskState.Preparing) return false;
+            _jobs.Remove(id);
+            _order.Remove(id);
+        }
+        _engine.Store.Delete(job.FilePath);
+        return true;
+    }
+
     public void SetDownloadDirectory(string directory)
     {
         if (string.IsNullOrWhiteSpace(directory) || directory == DownloadDirectory) return;

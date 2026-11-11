@@ -26,17 +26,43 @@
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="0,10,0,0">
                 <Button x:Name="PauseButton" Content="暂停" Padding="16,6"
                         Margin="0,0,8,0" IsEnabled="False" Click="PauseButton_Click"/>
-                <Button x:Name="ResumeButton" Content="继续" Padding="16,6"
-                        Margin="0,0,8,0" IsEnabled="False" Click="ResumeButton_Click"/>
-                <Button x:Name="OpenFolderButton" Content="打开所在目录" Padding="16,6"
-                        IsEnabled="False" Click="OpenFolderButton_Click"/>
+            <Button x:Name="ResumeButton" Content="继续" Padding="16,6"
+                    Margin="0,0,8,0" IsEnabled="False" Click="ResumeButton_Click"/>
+            <Button x:Name="DeleteButton" Content="删除任务" Padding="16,6"
+                    Margin="0,0,8,0" IsEnabled="False" Click="DeleteButton_Click"/>
+            <Button x:Name="OpenFolderButton" Content="打开所在目录" Padding="16,6"
+                    IsEnabled="False" Click="OpenFolderButton_Click"/>
             </StackPanel>
         </DockPanel>
 
         <DataGrid x:Name="TaskGrid" AutoGenerateColumns="False" IsReadOnly="True"
                   SelectionMode="Single" HeadersVisibility="Column"
                   GridLinesVisibility="Horizontal" ItemsSource="{Binding Tasks}"
+                  RowDetailsVisibilityMode="Visible"
                   SelectionChanged="TaskGrid_SelectionChanged">
+            <DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <!-- 分段可视化：每格代表一个并发分段，填充比例即该段进度，悬停看明细 -->
+                    <ItemsControl ItemsSource="{Binding Segments}" Margin="24,2,12,8">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Width="56" Margin="0,0,4,0" ToolTip="{Binding ToolTip}">
+                                    <ProgressBar Value="{Binding Percent, Mode=OneWay}"
+                                                 Maximum="100" Height="14"/>
+                                    <TextBlock Text="{Binding Label}" FontSize="9"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </DataTemplate>
+            </DataGrid.RowDetailsTemplate>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="文件名" Binding="{Binding FileName}" Width="2*"/>
                 <DataGridTemplateColumn Header="进度" Width="3*">

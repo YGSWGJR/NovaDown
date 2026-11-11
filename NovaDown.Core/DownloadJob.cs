@@ -57,6 +57,12 @@ public sealed class DownloadJob
 
     public double Progress => Total > 0 ? Math.Min(1.0, (double)Done / Total) : 0;
 
+    /// <summary>当前分段拆分的只读快照（供界面与 API 做拆分可视化）。</summary>
+    public IReadOnlyList<SegmentSnapshot> GetSegments() =>
+        _record.Segments
+            .Select(s => new SegmentSnapshot(s.Index, s.Start, s.End, s.Downloaded, s.End - s.Start + 1))
+            .ToList();
+
     /// <summary>探测资源并建立任务；若同路径存在进度记录且服务器文件未变，则直接续传。</summary>
     public static async Task<DownloadJob> CreateAsync(
         HttpClient http, string url, string directory, DownloadOptions options, TaskStateStore store,
@@ -84,6 +90,20 @@ public sealed class DownloadJob
         }
 
         var record = BuildRecord(url, filePath, total.Value, supportsRange, etag, options, headers);
+
+        // 全新任务：清掉同名残留文件，避免旧文件尾部数据混入新下载
+        if (File.Exists(filePath))
+        {
+            try
+            {
+                File.Delete(filePath);
+            }
+            catch (IOException ex)
+            {
+                throw new IOException($"目标文件被占用，无法覆盖：{fileName}（请先关闭使用它的程序）", ex);
+            }
+        }
+
         store.Save(record);
         return new DownloadJob(http, options, store, record, globalLimiter);
     }

@@ -81,6 +81,7 @@ public partial class MainWindow : Window
         var t = SelectedTask;
         PauseButton.IsEnabled = t?.Job.State == TaskState.Downloading;
         ResumeButton.IsEnabled = t is not null && t.Job.State is TaskState.Paused or TaskState.Error;
+        DeleteButton.IsEnabled = t is not null && t.Job.State is TaskState.Paused or TaskState.Completed or TaskState.Error;
         OpenFolderButton.IsEnabled = t is not null;
     }
 
@@ -89,6 +90,22 @@ public partial class MainWindow : Window
 
     private void ResumeButton_Click(object sender, RoutedEventArgs e)
         => SelectedTask?.Job.Start();
+
+    private void DeleteButton_Click(object sender, RoutedEventArgs e)
+    {
+        var t = SelectedTask;
+        if (t is null) return;
+        var confirm = MessageBox.Show(this,
+            $"确定删除任务【{t.FileName}】吗？\n\n已下载的文件会保留在磁盘上，仅移除任务与进度记录。",
+            "NovaDown", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        if (confirm != MessageBoxResult.Yes) return;
+
+        if (_services.Manager.Delete(t.Job.Id))
+        {
+            _tasks.Remove(t);
+            UpdateButtons();
+        }
+    }
 
     private void OpenFolderButton_Click(object sender, RoutedEventArgs e)
     {
@@ -124,6 +141,31 @@ public sealed class TaskItem : INotifyPropertyChanged
         _job.StatusChanged += OnJobChanged;
         _job.ProgressChanged += OnJobChanged;
         _job.DetailChanged += OnJobChanged;
+        SeedSegments(job.GetSegments());
+    }
+
+    /// <summary>分段可视化集合：数量在建任务时固定，进度随事件刷新。</summary>
+    public ObservableCollection<SegmentItem> Segments { get; } = new();
+
+    private void SeedSegments(IReadOnlyList<SegmentSnapshot> snapshots)
+    {
+        Segments.Clear();
+        foreach (var s in snapshots)
+        {
+            var item = new SegmentItem { Index = s.Index, Label = $"段{s.Index + 1}" };
+            item.Update(s.Downloaded, s.SegmentSize);
+            Segments.Add(item);
+        }
+    }
+
+    private void UpdateSegments()
+    {
+        var snaps = _job.GetSegments();
+        foreach (var s in snaps)
+        {
+            var item = Segments.FirstOrDefault(x => x.Index == s.Index);
+            item?.Update(s.Downloaded, s.SegmentSize);
+        }
     }
 
     public DownloadJob Job => _job;
@@ -169,7 +211,52 @@ public sealed class TaskItem : INotifyPropertyChanged
         OnPropertyChanged(nameof(SizeText));
         OnPropertyChanged(nameof(SpeedText));
         OnPropertyChanged(nameof(StateText));
+        UpdateSegments();
     }
+
+    private void OnPropertyChanged([CallerMemberName] string? name = null)
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+}
+
+/// <summary>分段可视化单元：一格代表一个并发分段。</summary>
+public sealed class SegmentItem : INotifyPropertyChanged
+{
+    private double _percent;
+    private string _toolTip = "";
+
+    public int Index { get; init; }
+
+    public string Label { get; init; } = "";
+
+    public double Percent
+    {
+        get => _percent;
+        private set
+        {
+            if (_percent == value) return;
+            _percent = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string ToolTip
+    {
+        get => _toolTip;
+        private set
+        {
+            if (_toolTip == value) return;
+            _toolTip = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public void Update(long downloaded, long segmentSize)
+    {
+        Percent = segmentSize > 0 ? Math.Min(100.0, downloaded * 100.0 / segmentSize) : 0;
+        ToolTip = $"段 {Index + 1}：{ByteSize.Format(downloaded)} / {ByteSize.Format(segmentSize)}（{Percent:0.0}%）";
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     private void OnPropertyChanged([CallerMemberName] string? name = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

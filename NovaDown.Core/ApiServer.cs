@@ -107,7 +107,7 @@ public sealed class ApiServer
 
             if (method == "GET" && path == "/api/health")
             {
-                await WriteAsync(resp, 200, new { name = "NovaDown", version = "0.2.0", status = "ok" }).ConfigureAwait(false);
+                await WriteAsync(resp, 200, new { name = "NovaDown", version = "0.3.0", status = "ok" }).ConfigureAwait(false);
             }
             else if (method == "GET" && path == "/api/extension-config")
             {
@@ -146,6 +146,16 @@ public sealed class ApiServer
                 var ok = action == "pause" ? _manager.Pause(id) : _manager.Resume(id);
                 if (ok) await WriteAsync(resp, 200, new { ok = true }).ConfigureAwait(false);
                 else await WriteAsync(resp, 409, new { error = "当前状态不允许该操作" }).ConfigureAwait(false);
+            }
+            else if (method == "DELETE" && path.StartsWith("/api/tasks/", StringComparison.Ordinal))
+            {
+                var delId = path["/api/tasks/".Length..];
+                if (_manager.Get(delId) is null)
+                    await WriteAsync(resp, 404, new { error = "任务不存在" }).ConfigureAwait(false);
+                else if (_manager.Delete(delId))
+                    await WriteAsync(resp, 200, new { ok = true }).ConfigureAwait(false);
+                else
+                    await WriteAsync(resp, 409, new { error = "下载中的任务不能删除，请先暂停" }).ConfigureAwait(false);
             }
             else if (method == "GET" && path.StartsWith("/api/tasks/", StringComparison.Ordinal))
             {
@@ -197,6 +207,15 @@ public sealed class ApiServer
         total = j.Total,
         progress = j.Progress,
         error = j.ErrorMessage,
+        segments = j.GetSegments().Select(s => new
+        {
+            index = s.Index,
+            start = s.Start,
+            end = s.End,
+            done = s.Downloaded,
+            size = s.SegmentSize,
+            percent = s.Percent,
+        }),
     };
 
     private static async Task<T?> ReadJsonAsync<T>(HttpListenerRequest request)

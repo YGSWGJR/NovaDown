@@ -24,6 +24,12 @@ public sealed class SegmentState
     public long Remaining => End - Start + 1 - Downloaded;
 }
 
+/// <summary>分段进度的只读快照，用于界面与 API 展示拆分可视化。</summary>
+public sealed record SegmentSnapshot(int Index, long Start, long End, long Downloaded, long SegmentSize)
+{
+    public double Percent => SegmentSize > 0 ? Math.Min(100.0, Downloaded * 100.0 / SegmentSize) : 0;
+}
+
 /// <summary>任务的持久化记录（JSON 落盘，用于断点续传）。</summary>
 public sealed class TaskRecord
 {
