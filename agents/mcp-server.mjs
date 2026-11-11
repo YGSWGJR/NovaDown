@@ -95,7 +95,7 @@ async function handleMessage(msg) {
       result: {
         protocolVersion: '2024-11-05',
         capabilities: { tools: {} },
-        serverInfo: { name: 'novadown', version: '0.2.0' },
+        serverInfo: { name: 'novadown', version: '0.3.0' },
       },
     });
     return;
