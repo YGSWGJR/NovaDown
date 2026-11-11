@@ -1,0 +1,26 @@
+# .NET 构建产物
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+
+# Node 依赖
+node_modules/
+
+# 下载测试产物
+_test/
+*.novadown.json
+
+# 文档生成中间产物
+docs/render/
+docs/_x/
+
+# IDE / 系统文件
+.vs/
+.vscode/
+Thumbs.db
+~$*
+
+# 本地工具会话状态
+.mimosa/
+

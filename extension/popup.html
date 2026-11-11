@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <style>
+    body { width: 300px; margin: 0; font-family: "Microsoft YaHei", sans-serif; font-size: 13px; }
+    .head { background: #2563eb; color: #fff; padding: 10px 12px; font-weight: bold; }
+    .body { padding: 12px; }
+    label { display: block; margin: 8px 0 3px; color: #444; }
+    input { width: 100%; box-sizing: border-box; padding: 5px 7px; border: 1px solid #ccc; border-radius: 4px; }
+    .row { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+    button { padding: 5px 14px; border: none; border-radius: 4px; background: #2563eb; color: #fff; cursor: pointer; }
+    button:hover { background: #1d4ed8; }
+    #status { margin-bottom: 6px; padding: 7px 9px; border-radius: 4px; background: #f1f5f9; }
+    .tip { color: #888; font-size: 11px; margin-top: 8px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="head">NovaDown 接管助手</div>
+  <div class="body">
+    <div id="status">检测中…</div>
+    <label><input type="checkbox" id="enabled"/> 启用接管</label>
+    <label>NovaDown API 端口</label>
+    <input type="number" id="port" placeholder="28123"/>
+    <label>访问令牌（在 NovaDown ⚙ 设置 中复制）</label>
+    <input type="text" id="token" placeholder="粘贴令牌"/>
+    <div class="row">
+      <button id="save">保存并连接</button>
+    </div>
+    <div class="tip">接管规则（最小大小 / 扩展名 / 出错回退）<br/>统一在 NovaDown 桌面端 ⚙ 设置 里调整。</div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
