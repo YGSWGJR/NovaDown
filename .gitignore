@@ -29,3 +29,6 @@ publish/
 dist/
 软件安装/*.exe
 
+# Python 缓存
+__pycache__/
+

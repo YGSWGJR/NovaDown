@@ -132,8 +132,15 @@ public sealed class ApiServer
                 if (!string.IsNullOrEmpty(body.Referer))
                     headers = new Dictionary<string, string> { ["Referer"] = body.Referer! };
 
-                var job = await _manager.AddAsync(url, headers).ConfigureAwait(false);
-                await WriteAsync(resp, 200, new { id = job.Id, fileName = job.FileName, totalBytes = job.Total }).ConfigureAwait(false);
+                try
+                {
+                    var job = await _manager.AddAsync(url, headers, directory: body.Directory).ConfigureAwait(false);
+                    await WriteAsync(resp, 200, new { id = job.Id, fileName = job.FileName, totalBytes = job.Total, directory = job.FilePath }).ConfigureAwait(false);
+                }
+                catch (ArgumentException ex)
+                {
+                    await WriteAsync(resp, 400, new { error = ex.Message }).ConfigureAwait(false);
+                }
             }
             else if (method == "GET" && path == "/api/tasks")
             {
@@ -232,7 +239,7 @@ public sealed class ApiServer
         }
     }
 
-    private sealed record AddTaskRequest(string? Url, string? Referer);
+    private sealed record AddTaskRequest(string? Url, string? Referer, string? Directory);
 
     private static async Task WriteAsync(HttpListenerResponse resp, int status, object payload)
     {

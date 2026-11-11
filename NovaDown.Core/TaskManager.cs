@@ -30,9 +30,11 @@ public sealed class TaskManager
 
     public async Task<DownloadJob> AddAsync(
         string url, IReadOnlyDictionary<string, string>? extraHeaders = null,
-        bool? autoStart = null, CancellationToken ct = default)
+        bool? autoStart = null, string? directory = null, CancellationToken ct = default)
     {
-        var job = await _engine.CreateTaskAsync(url, DownloadDirectory, extraHeaders, ct).ConfigureAwait(false);
+        // Agent 可指定保存目录；不指定则用默认下载目录。目录不存在时自动创建。
+        var targetDir = ResolveDirectory(directory);
+        var job = await _engine.CreateTaskAsync(url, targetDir, extraHeaders, ct).ConfigureAwait(false);
 
         lock (_lock)
         {
@@ -43,6 +45,28 @@ public sealed class TaskManager
 
         if (autoStart ?? AutoStart) job.Start();
         return job;
+    }
+
+    /// <summary>解析并规范调用方指定的保存目录：必须为绝对路径，不存在则创建。</summary>
+    private string ResolveDirectory(string? directory)
+    {
+        if (string.IsNullOrWhiteSpace(directory)) return DownloadDirectory;
+
+        string full;
+        try
+        {
+            full = Path.GetFullPath(directory);
+        }
+        catch (Exception ex)
+        {
+            throw new ArgumentException($"保存目录不合法：{directory}（{ex.Message}）");
+        }
+
+        if (!Path.IsPathFullyQualified(full))
+            throw new ArgumentException($"保存目录必须是绝对路径：{directory}");
+
+        Directory.CreateDirectory(full);
+        return full;
     }
 
     public DownloadJob? Get(string id)

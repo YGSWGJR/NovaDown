@@ -36,14 +36,15 @@ async function api(path, options = {}) {
 const TOOLS = [
   {
     name: 'novadown_add_task',
-    description: '添加下载任务到 NovaDown（默认自动开始下载）',
+    description: '添加下载任务到 NovaDown（默认自动开始下载）。每次调用时应主动确定并传入保存目录 directory——若用户未说明位置，先询问用户或按文件类型选择合适目录后再调用。',
     inputSchema: {
       type: 'object',
       properties: {
         url: { type: 'string', description: '文件直链（http/https）' },
+        directory: { type: 'string', description: '保存目录的绝对路径，推荐用正斜杠（如 D:/下载/工具，Windows 下同样有效）。目录不存在会自动创建。不传则存到默认下载目录。' },
         referer: { type: 'string', description: '可选 Referer 头，防盗链站点需要' },
       },
-      required: ['url'],
+      required: ['url', 'directory'],
     },
   },
   {
@@ -77,7 +78,7 @@ async function callTool(name, args = {}) {
     return api('/tasks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: args.url, referer: args.referer }),
+      body: JSON.stringify({ url: args.url, referer: args.referer, directory: args.directory }),
     });
   }
   if (name === 'novadown_list_tasks') return api('/tasks');
