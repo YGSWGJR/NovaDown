@@ -99,3 +99,7 @@ NovaDown.Cli\bin\Debug\net8.0\NovaDown.Cli.dll <url> [目录] [分段数] [--lim
 3. 视频嗅探（扩展配合解析媒体资源）
 4. BT/磁力链（嵌 libtorrent 评估）
 5. 安装包（Inno Setup）与开机自启
+
+## 许可证
+
+[MIT](LICENSE) — 可以自由使用、修改、分发。安装包见 [GitHub Releases](https://github.com/YGSWGJR/NovaDown/releases)。
