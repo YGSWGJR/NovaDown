@@ -107,7 +107,7 @@ public sealed class ApiServer
 
             if (method == "GET" && path == "/api/health")
             {
-                await WriteAsync(resp, 200, new { name = "NovaDown", version = "0.3.0", status = "ok" }).ConfigureAwait(false);
+                await WriteAsync(resp, 200, new { name = "NovaDown", version = "0.3.1", status = "ok" }).ConfigureAwait(false);
             }
             else if (method == "GET" && path == "/api/extension-config")
             {

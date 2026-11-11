@@ -2,7 +2,7 @@
 ; 编译：ISCC.exe installer\setup.iss
 
 #define MyAppName "NovaDown"
-#define MyAppVersion "0.3.0"
+#define MyAppVersion "0.3.1"
 #define MyAppExeName "NovaDown.App.exe"
 #define MyAppGuid "{{7E1A4C2B-9D3F-4A58-8C6D-21B0E5F7A930}"
 
