@@ -27,4 +27,5 @@ Thumbs.db
 # 发布与安装包产物
 publish/
 dist/
+软件安装/*.exe
 

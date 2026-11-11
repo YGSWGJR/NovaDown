@@ -15,7 +15,7 @@ DefaultDirName={autopf}\NovaDown
 DefaultGroupName=NovaDown
 UninstallDisplayName=NovaDown 下载器
 UninstallDisplayIcon={app}\{#MyAppExeName}
-OutputDir=..\dist
+OutputDir=..\软件安装
 OutputBaseFilename=NovaDown-{#MyAppVersion}-setup
 Compression=lzma2/max
 SolidCompression=yes
@@ -46,6 +46,8 @@ Source: "..\extension\*"; DestDir: "{app}\extension"; Flags: recursesubdirs igno
 Source: "..\agents\mcp-server.mjs"; DestDir: "{app}\agents"; Flags: ignoreversion
 Source: "..\README.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\使用说明.docx"; DestDir: "{app}"; Flags: ignoreversion
+; 完整卸载工具（清除程序+设置+下载数据）
+Source: "..\软件安装\卸载NovaDown.bat"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\NovaDown 下载器"; Filename: "{app}\{#MyAppExeName}"
