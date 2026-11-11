@@ -107,6 +107,15 @@ async function watchTask(taskId, url, token, port, cfg) {
 
 chrome.downloads.onCreated.addListener(async (item) => {
   try {
+    // ── 接管范围限定：只接管"此刻新触发"的下载 ──
+    // bytesReceived > 0：浏览器恢复的旧下载（Edge 重启续传 / 用户手动继续），属于之前的任务，不接管
+    if ((item.bytesReceived || 0) > 0) return;
+    // 下载项创建时间距今超过 60 秒：历史下载项被重新派发，不是当前触发的，不接管
+    const startedAt = Date.parse(item.startTime || '');
+    if (Number.isFinite(startedAt) && Date.now() - startedAt > 60_000) return;
+    // 已完成 / 已中断的历史项不接管
+    if (item.state && item.state !== 'in_progress') return;
+
     const { token, port, enabled } = await getLocalSettings();
     if (!enabled || !token) return; // 扩展未配对或被用户关闭 → 普通下载
     if (await isBypassId(item.id)) return;

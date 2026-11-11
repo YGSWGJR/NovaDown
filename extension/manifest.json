@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NovaDown 接管助手",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "把浏览器下载自动转交给 NovaDown 桌面端多线程引擎，失败时自动回退普通下载。接管规则在 NovaDown 设置界面配置。",
   "permissions": ["downloads", "storage"],
   "host_permissions": ["http://localhost/*", "http://127.0.0.1/*"],
