@@ -11,6 +11,14 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        // UI 线程未处理异常兜底：弹提示而不裸崩整个进程
+        DispatcherUnhandledException += (_, args) =>
+        {
+            MessageBox.Show($"界面发生错误：{args.Exception.Message}", "NovaDown",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            args.Handled = true;
+        };
+
         Services = AppServices.Create();
         try
         {

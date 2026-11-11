@@ -43,7 +43,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Grid VerticalAlignment="Center">
-                                <ProgressBar Value="{Binding ProgressPercent}" Maximum="100" Height="6"/>
+                                <ProgressBar Value="{Binding ProgressPercent, Mode=OneWay}" Maximum="100" Height="6"/>
                                 <TextBlock Text="{Binding ProgressText}" HorizontalAlignment="Center"
                                            FontSize="10" VerticalAlignment="Center"/>
                             </Grid>
